@@ -1,10 +1,8 @@
 package com.procs.pcs_.controller;
 
-import com.procs.pcs_.model.ERole;
-import com.procs.pcs_.model.RoleEntity;
-import com.procs.pcs_.model.UserData;
-import com.procs.pcs_.model.UsersEntity;
+import com.procs.pcs_.model.*;
 import com.procs.pcs_.repository.RoleRepository;
+import com.procs.pcs_.repository.SocietyRepository;
 import com.procs.pcs_.repository.UserDataRepository;
 import com.procs.pcs_.repository.UserRepository;
 import com.procs.pcs_.request_response.JwtResponse;
@@ -40,6 +38,7 @@ public class AuthController {
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
     private final JwtUtils jwtUtils;
+    private final SocietyRepository societyRepository;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
@@ -76,20 +75,20 @@ public class AuthController {
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
             roles.add(userRole);
         } else {
-//            strRoles.forEach(role -> {
-//            RoleEntity newRole = switch (role) {
-//                case "admin" -> roleRepository.findByName(ERole.ADMIN)
-//                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-//                case "proger" -> roleRepository.findByName(ERole.PROG)
-//                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-//                case "manager" -> roleRepository.findByName(ERole.MANAG)
-//                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-//                default -> null;
-//            };
-//            if (newRole != null) {
-//                roles.add(newRole);
-//            }
-//        });
+            strRoles.forEach(role -> {
+                RoleEntity newRole = switch (role) {
+                    case "admin" -> roleRepository.findByName(ERole.ADMIN)
+                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                    case "proger" -> roleRepository.findByName(ERole.PROG)
+                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                    case "manager" -> roleRepository.findByName(ERole.MANAG)
+                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                    default -> null;
+                };
+                if (newRole != null) {
+                    roles.add(newRole);
+                }
+            });
         }
         user.setRoles(roles);
         userRepository.save(user);
@@ -102,10 +101,16 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
-    @PostMapping("/registeradmin")
-    public ResponseEntity<?> registrationToAdmin(@RequestBody SignupRequest signupRequest) {
-        this.registerUser(signupRequest);
-
+    @PostMapping("/registeradmin1")
+    public ResponseEntity<?> registrationForAdmin(@RequestBody SignupRequest signupRequest) {
+        if (!societyRepository.existsByName(signupRequest.getSocietyName())) {
+            this.registerUser(signupRequest);
+            SocietyEntity society = new SocietyEntity(
+                    signupRequest.getSocietyName(),
+                    userRepository.getByLogin(signupRequest.getEmail())
+            );
+            societyRepository.save(society);
+        }
         return ResponseEntity.ok(new MessageResponse("Admin registered!"));
     }
 }

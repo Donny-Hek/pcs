@@ -26,4 +26,9 @@ public class SocietyEntity {
             joinColumns = @JoinColumn(name = "societyid"),
             inverseJoinColumns = @JoinColumn(name = "userid"))
     private List<UsersEntity> usersList = new ArrayList<>();
+
+    public SocietyEntity(String name,UsersEntity user) {
+        this.name = name;
+        usersList.add(user);
+    }
 }
