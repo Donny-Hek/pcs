@@ -33,7 +33,7 @@ public class UsersEntity {
 //    @OneToOne(fetch = FetchType.LAZY,mappedBy = "user")
 //    private UserData userData;
 
-//    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @ManyToOne()
 //    private SocietyEntity society;
 
     public UsersEntity(String email, String password) {

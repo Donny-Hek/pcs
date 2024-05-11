@@ -12,6 +12,7 @@ import java.util.List;
 @Data
 @Table(name = "society", schema = "public", catalog = "pcs_db")
 @AllArgsConstructor
+//@RequiredArgsConstructor
 @NoArgsConstructor
 public class SocietyEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,10 +26,14 @@ public class SocietyEntity {
     @JoinTable(name = "users_society",
             joinColumns = @JoinColumn(name = "societyid"),
             inverseJoinColumns = @JoinColumn(name = "userid"))
-    private List<UsersEntity> usersList = new ArrayList<>();
+    private List<UserData> usersList = new ArrayList<>();
 
-    public SocietyEntity(String name,UsersEntity user) {
-        this.name = name;
+    public SocietyEntity(String nameSociety,UserData newUser) {
+        this.name = nameSociety;
+        this.usersList.add(newUser);
+    }
+
+    public void addUserToList(UserData user) {
         usersList.add(user);
     }
 }

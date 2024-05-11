@@ -25,6 +25,9 @@ public class UserData {
     @JoinColumn(name = "userid")
     private UsersEntity user;
 
+    @ManyToOne()
+    private SocietyEntity society;
+
     public UserData(String name, String surname, UsersEntity userid) {
         this.name = name;
         this.surname = surname;

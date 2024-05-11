@@ -64,7 +64,12 @@ public class WebSecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/auth/**").permitAll()
-//                                .requestMatchers("/test/**").permitAll()
+                                .requestMatchers("/profile/programmer").permitAll()
+                                .requestMatchers("/profile/manager").hasAuthority("MANAG")
+                                .requestMatchers("/profile/manager").hasAuthority("ADMIN")
+                                .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                                .requestMatchers("/manag/**").hasAuthority("MANAG")
+                                .requestMatchers("/programer/**").permitAll()
                                 .anyRequest().authenticated()
                 );
 

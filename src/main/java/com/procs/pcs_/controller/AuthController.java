@@ -5,10 +5,7 @@ import com.procs.pcs_.repository.RoleRepository;
 import com.procs.pcs_.repository.SocietyRepository;
 import com.procs.pcs_.repository.UserDataRepository;
 import com.procs.pcs_.repository.UserRepository;
-import com.procs.pcs_.request_response.JwtResponse;
-import com.procs.pcs_.request_response.LoginRequest;
-import com.procs.pcs_.request_response.MessageResponse;
-import com.procs.pcs_.request_response.SignupRequest;
+import com.procs.pcs_.request_response.*;
 import com.procs.pcs_.security.JwtUtils;
 import com.procs.pcs_.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -18,16 +15,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+//@CrossOrigin(value = "http://localhost:8081")
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -38,7 +33,6 @@ public class AuthController {
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
     private final JwtUtils jwtUtils;
-    private final SocietyRepository societyRepository;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
@@ -61,7 +55,7 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByLogin(signUpRequest.getEmail())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already taken!"));
         }
 
         UsersEntity user = new UsersEntity(signUpRequest.getEmail(),
@@ -79,11 +73,12 @@ public class AuthController {
                 RoleEntity newRole = switch (role) {
                     case "admin" -> roleRepository.findByName(ERole.ADMIN)
                             .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                    case "proger" -> roleRepository.findByName(ERole.PROG)
+//                    case "prog" -> roleRepository.findByName(ERole.PROG)
+//                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                    case "manag" -> roleRepository.findByName(ERole.MANAG)
                             .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                    case "manager" -> roleRepository.findByName(ERole.MANAG)
+                    default -> roleRepository.findByName(ERole.PROG)
                             .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                    default -> null;
                 };
                 if (newRole != null) {
                     roles.add(newRole);
@@ -99,18 +94,5 @@ public class AuthController {
                 userRepository.getByLogin(user.getLogin()));
         userDataR.save(userData);
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
-    }
-
-    @PostMapping("/registeradmin1")
-    public ResponseEntity<?> registrationForAdmin(@RequestBody SignupRequest signupRequest) {
-        if (!societyRepository.existsByName(signupRequest.getSocietyName())) {
-            this.registerUser(signupRequest);
-            SocietyEntity society = new SocietyEntity(
-                    signupRequest.getSocietyName(),
-                    userRepository.getByLogin(signupRequest.getEmail())
-            );
-            societyRepository.save(society);
-        }
-        return ResponseEntity.ok(new MessageResponse("Admin registered!"));
     }
 }
