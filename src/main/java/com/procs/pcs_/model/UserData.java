@@ -1,9 +1,13 @@
 package com.procs.pcs_.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.procs.pcs_.ProjectEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Entity
@@ -23,10 +27,19 @@ public class UserData {
     @MapsId
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userid")
+    @JsonIgnore
     private UsersEntity user;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     private SocietyEntity society;
+
+    @Transient
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<ProjectEntity> ownerOfProjects = new ArrayList<>();
+
+    @Transient
+    @ManyToMany(fetch = FetchType.LAZY)
+    private List<ProjectEntity> projects = new ArrayList<>();
 
     public UserData(String name, String surname, UsersEntity userid) {
         this.name = name;

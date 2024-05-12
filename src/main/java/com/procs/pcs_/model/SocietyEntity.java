@@ -12,7 +12,6 @@ import java.util.List;
 @Data
 @Table(name = "society", schema = "public", catalog = "pcs_db")
 @AllArgsConstructor
-//@RequiredArgsConstructor
 @NoArgsConstructor
 public class SocietyEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +33,6 @@ public class SocietyEntity {
     }
 
     public void addUserToList(UserData user) {
-        usersList.add(user);
+        this.usersList.add(user);
     }
 }

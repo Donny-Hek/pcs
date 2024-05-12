@@ -9,6 +9,7 @@ import com.procs.pcs_.repository.UserRepository;
 import com.procs.pcs_.request_response.UserList;
 import com.procs.pcs_.security.JwtUtils;
 import com.procs.pcs_.service.SocietyService;
+import com.procs.pcs_.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,6 +29,7 @@ public class ProfileController {
     private final UserRepository userRepository;
     private final UserDataRepository userDataRepository;
     private final SocietyService societyService;
+    private final UserService userService;
 
     @GetMapping("/progr")
     public String userAccess(@RequestHeader("Authorization") String token) {
@@ -41,27 +43,16 @@ public class ProfileController {
 
     @GetMapping("/admin")
     public ResponseEntity<?> adminAccess(@RequestHeader("Authorization") String token) {
-        String username = this.getUsernameFromToken(token);
-        UsersEntity user = userRepository.findByLogin(username).orElseThrow(
-                () -> new UsernameNotFoundException("User Not Found with username: " + username));
-        SocietyEntity society = userDataRepository.getById(user.getId()).getSociety();
+        String login = this.getUsernameFromToken(token);
+        int societyid = userService.getUserSociety(login);
 
-        if (society == null) return ResponseEntity.ok("Создайте группу или присоединитесь к существующей");
+        if (societyid == 0) return ResponseEntity.ok("Создайте группу или присоединитесь к существующей");
         else {
-            List<UserData> users = society.getUsersList();
-            List<UserList> userList = new ArrayList<>();
-            users.stream().map(item ->
-                    userList.add(new UserList(item.getId(),
-                            userDataRepository.getById(item.getId()).getName().charAt(0),
-                            userDataRepository.getById(item.getId()).getSurname(),
-//                            item.getRoles(),
-                            userRepository.getByLogin(item.getEmail()).getRoles()
-                    )));
-            return ResponseEntity.ok(userList);
+            return ResponseEntity.ok(societyService.getUserListBySocietyId(societyid));
         }
-
     }
-    public String getUsernameFromToken (String token) {
+
+    public String getUsernameFromToken(String token) {
         String jwt = token.substring(7, token.length()); //очищаем токен
         return jwtUtils.getUserNameFromJwtToken(jwt); //извлекаем имя пользователя из токена
     }
