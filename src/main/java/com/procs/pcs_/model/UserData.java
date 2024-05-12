@@ -1,5 +1,6 @@
 package com.procs.pcs_.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ public class UserData {
     @MapsId
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userid")
+    @JsonIgnore
     private UsersEntity user;
 
     @ManyToOne(fetch = FetchType.LAZY)
