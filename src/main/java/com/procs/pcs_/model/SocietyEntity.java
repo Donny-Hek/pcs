@@ -34,6 +34,6 @@ public class SocietyEntity {
     }
 
     public void addUserToList(UserData user) {
-        usersList.add(user);
+        this.usersList.add(user);
     }
 }
