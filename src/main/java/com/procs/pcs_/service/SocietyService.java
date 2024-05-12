@@ -1,5 +1,6 @@
 package com.procs.pcs_.service;
 
+import com.procs.pcs_.model.RoleEntity;
 import com.procs.pcs_.model.SocietyEntity;
 import com.procs.pcs_.model.UserData;
 import com.procs.pcs_.repository.SocietyRepository;
@@ -11,7 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -27,10 +30,15 @@ public class SocietyService {
         List<UserList> userList = new ArrayList<>();
 
         for (UserData elem : userdata) {
+            Set<RoleEntity> roles = userRepository.getById(elem.getId()).getRoles();
+            Set<String> listRoles = new HashSet<>();
+            roles.forEach(item -> listRoles.add(String.valueOf(item.getName())));
+
             userList.add(new UserList(elem.getId(),
                     elem.getName().charAt(0),
                     elem.getSurname(),
-                    userRepository.getById(elem.getId()).getRoles()));
+                    listRoles
+            ));
         }
         return userList;
     }
