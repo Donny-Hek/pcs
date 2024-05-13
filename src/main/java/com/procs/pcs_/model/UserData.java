@@ -31,11 +31,11 @@ public class UserData {
     @ManyToOne(fetch = FetchType.LAZY)
     private SocietyEntity society;
 
-    @Transient
+//    @Transient
     @OneToMany(fetch = FetchType.LAZY)
     private List<ProjectEntity> ownerOfProjects = new ArrayList<>();
 
-    @Transient
+//    @Transient
     @ManyToMany(fetch = FetchType.LAZY)
     private List<ProjectEntity> workOnProjects = new ArrayList<>();
 
@@ -44,5 +44,12 @@ public class UserData {
         this.surname = surname;
         this.user = userid;
         this.email = userid.getLogin();
+    }
+
+    public void addToOwnerList(ProjectEntity pr){
+        this.ownerOfProjects.add(pr);
+    }
+    public void delFromOwnerList(ProjectEntity pr){
+        this.ownerOfProjects.remove(pr);
     }
 }

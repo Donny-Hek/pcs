@@ -8,24 +8,21 @@ import com.procs.pcs_.repository.UserDataRepository;
 import com.procs.pcs_.repository.UserRepository;
 import com.procs.pcs_.request_response.UserList;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class SocietyService {
     private final SocietyRepository societyRepository;
     private final UserDataRepository userDataRepository;
-    private final UserService userService;
     private final UserRepository userRepository;
 
-    @Transactional
-    public List<UserList> getUserListBySocietyId(int id) {
+    @Modifying(clearAutomatically = true)
+    public List<UserList> getUserListBySocietyId(int id, String adminName) {
         List<UserData> userdata = societyRepository.getById(id).getUsersList();
         List<UserList> userList = new ArrayList<>();
 
@@ -33,12 +30,12 @@ public class SocietyService {
             Set<RoleEntity> roles = userRepository.getById(elem.getId()).getRoles();
             Set<String> listRoles = new HashSet<>();
             roles.forEach(item -> listRoles.add(String.valueOf(item.getName())));
-
-            userList.add(new UserList(elem.getId(),
-                    elem.getName().charAt(0),
-                    elem.getSurname(),
-                    listRoles
-            ));
+            if (!Objects.equals(adminName, elem.getEmail()))
+                userList.add(new UserList(elem.getId(),
+                        elem.getName().charAt(1),
+                        elem.getSurname(),
+                        listRoles
+                ));
         }
         return userList;
     }
@@ -55,19 +52,20 @@ public class SocietyService {
         } else return false;
     }
 
-    @Transactional
+    @Modifying(clearAutomatically = true)
     public boolean addUserToSociety(int userid, String email, String nameAdmin) {
         UserData admin = userDataRepository.findUserDataByEmail(nameAdmin);
-        if (userDataRepository.existsByEmail(email)
-                && userDataRepository.getById(userid) == userDataRepository.findUserDataByEmail(email)) {
-            //существует ли пользователь, которого добавляем
+
+        if (admin.getSociety() != null && userDataRepository.existsByEmail(email) &&
+                userDataRepository.getById(userid) == userDataRepository.findUserDataByEmail(email)) {
+            //существует ли пользователь, которого добавляем/ сходится ли информация по id и email
             UserData user = userDataRepository.findUserDataByEmail(email);
             if (user.getSociety() == null) {
                 //состоит ли УЖЕ пользователь в другой группе
                 SocietyEntity society = admin.getSociety();
                 society.addUserToList(user);
                 societyRepository.save(society);
-                user.setSociety(admin.getSociety());
+                user.setSociety(society);
                 userDataRepository.save(user);
                 return true;
             }
@@ -75,7 +73,7 @@ public class SocietyService {
         return false;
     }
 
-    @Transactional
+    @Modifying(clearAutomatically = true)
     public boolean checkBelongingToSociety(String nameAdmin, int id, String surname) {
         UserData admin = userDataRepository.findUserDataByEmail(nameAdmin);
         if (userDataRepository.existsUserDataByIdAndSurname(id, surname)) {

@@ -38,6 +38,13 @@ public class ProfileController {
 
     @GetMapping("/manag")
     public String managAccess() {
+//        колво проектов,
+//        из json статус и дата создания проекта
+//        колво просроченных задач по всем проектам,
+//        колво неначатых задач
+//        колво задач в процессе
+//        колво задач, требующих одобренного завершения
+
         return "manager";
     }
 
@@ -48,7 +55,7 @@ public class ProfileController {
 
         if (societyid == 0) return ResponseEntity.ok("Создайте группу или присоединитесь к существующей");
         else {
-            return ResponseEntity.ok(societyService.getUserListBySocietyId(societyid));
+            return ResponseEntity.ok(societyService.getUserListBySocietyId(societyid, login));
         }
     }
 
