@@ -35,9 +35,9 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager
-                .authenticate(
-                        new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
-                                loginRequest.getPassword()));
+                .authenticate(new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(),
+                        loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
 
@@ -46,8 +46,10 @@ public class AuthController {
                 .collect(Collectors.toList());
 //сюда надр еще добавить список проектов id+название
         return ResponseEntity
-                .ok(new JwtResponse(jwt, "Bearer", userDetails.getId(), userDetails.getUsername(),
-                        userDetails.getEmail(), roles));
+                .ok(new JwtResponse(jwt, "Bearer",
+//                        userDetails.getId(), userDetails.getUsername(),
+//                        userDetails.getEmail(),
+                        roles));
     }
 
     @PostMapping("/signup")

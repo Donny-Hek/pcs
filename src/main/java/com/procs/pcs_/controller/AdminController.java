@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.*;
 //@NoArgsConstructor(force = true)
 public class AdminController {
     private final JwtUtils jwtUtils;
-    private final UserDataRepository userDataRepository;
-    private final SocietyRepository societyRepository;
     private final SocietyService societyService;
     private final UserService userService;
 
@@ -65,7 +63,7 @@ public class AdminController {
 //        return false;
 //    }
 
-    public String getUsernameFromToken(String token) {
+    private String getUsernameFromToken(String token) {
         String jwt = token.substring(7, token.length()); //очищаем токен
         return jwtUtils.getUserNameFromJwtToken(jwt); //извлекаем имя пользователя из токена
     }

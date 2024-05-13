@@ -9,8 +9,8 @@ import java.util.List;
 public class JwtResponse {
     private String token;
     private String type = "Bearer";
-    private int id;
-    private String username;
-    private String email;
+//    private int id;
+//    private String username;
+//    private String email;
     private List<String> roles;
 }
