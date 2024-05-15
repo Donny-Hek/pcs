@@ -1,18 +1,24 @@
 package com.procs.pcs_.service;
 
 import com.procs.pcs_.model.ProjectEntity;
+import com.procs.pcs_.model.SocietyEntity;
 import com.procs.pcs_.model.UserData;
 import com.procs.pcs_.repository.ProjectRepository;
 import com.procs.pcs_.repository.UserDataRepository;
+import com.procs.pcs_.request_response.UserList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
     private final UserDataRepository userDataRepository;
     private final ProjectRepository projectRepository;
+    private final UserService userService;
 
     @Modifying(clearAutomatically = true)
     public boolean addProject(String nameSociety, String nameManag) {
@@ -42,6 +48,27 @@ public class ProjectService {
                 return true;
             } else return false;
         }
+    }
+
+    @Modifying(clearAutomatically = true)
+    public List<UserData> getProjectWorkersByIdAndName(String login, int id, String name) {
+        UserData manag = userDataRepository.findUserDataByEmail(login);
+        SocietyEntity society = manag.getSociety();
+        ProjectEntity currentProject = projectRepository.findByIdAndName
+                (id, name).orElse(null);
+        if (currentProject != null){
+            List<UserData> freeWorkers = society.getUsersList();
+            freeWorkers.removeAll(currentProject.getWorkers());//удалить участников проекта
+            freeWorkers=userService.userListWithoutAdmins(freeWorkers);
+            return freeWorkers;
+        }
+        else return null;
+    }
+
+    @Modifying(clearAutomatically = true)
+    public List<ProjectEntity> getListOfWorkedProjects(String login){
+        UserData manag = userDataRepository.findUserDataByEmail(login);
+        return manag.getOwnerOfProjects();
     }
 }
 

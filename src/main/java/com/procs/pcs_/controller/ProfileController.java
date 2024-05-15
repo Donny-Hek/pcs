@@ -1,5 +1,6 @@
 package com.procs.pcs_.controller;
 
+import com.procs.pcs_.model.ProjectEntity;
 import com.procs.pcs_.model.SocietyEntity;
 import com.procs.pcs_.model.UserData;
 import com.procs.pcs_.model.UsersEntity;
@@ -8,17 +9,16 @@ import com.procs.pcs_.repository.UserDataRepository;
 import com.procs.pcs_.repository.UserRepository;
 import com.procs.pcs_.request_response.UserList;
 import com.procs.pcs_.security.JwtUtils;
+import com.procs.pcs_.service.ProjectService;
 import com.procs.pcs_.service.SocietyService;
 import com.procs.pcs_.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 //@CrossOrigin(value = "http://localhost:8081")
 @RestController
@@ -26,10 +26,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProfileController {
     private final JwtUtils jwtUtils;
-    private final UserRepository userRepository;
-    private final UserDataRepository userDataRepository;
     private final SocietyService societyService;
     private final UserService userService;
+    private final ProjectService projectService;
 
     @GetMapping("/progr")
     public String userAccess(@RequestHeader("Authorization") String token) {
@@ -37,15 +36,22 @@ public class ProfileController {
     }
 
     @GetMapping("/manag")
-    public String managAccess() {
+    public JSONObject managAccess(@RequestHeader("Authorization") String token) {
 //        колво проектов,
 //        из json статус и дата создания проекта
 //        колво просроченных задач по всем проектам,
 //        колво неначатых задач
 //        колво задач в процессе
-//        колво задач, требующих одобренного завершения
+        List<ProjectEntity> projects = projectService.getListOfWorkedProjects(getUsernameFromToken(token));
+        JSONObject json = new JSONObject();
+        for (ProjectEntity elem : projects) {
+            elem.setUser(null);
+            elem.setWorkers(null);
+        }
+        json.put("count", projects.size());
+        json.put("projects", projects);
 
-        return "manager";
+        return json;
     }
 
     @GetMapping("/admin")

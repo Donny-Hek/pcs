@@ -6,13 +6,10 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.json.JSONObject;
-import org.springframework.boot.jackson.JsonObjectSerializer;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Entity
 @Data
@@ -21,7 +18,6 @@ import java.util.Optional;
 public class ProjectEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "project_id_gen")
-//    @SequenceGenerator(name = "project_id_gen", sequenceName = "project_id_seq", allocationSize = 1)
     @Column(name = "id", nullable = false)
     private Integer id;
 
@@ -51,10 +47,21 @@ public class ProjectEntity {
             inverseJoinColumns = @JoinColumn(name = "workerid"))
     private List<UserData> workers = new ArrayList<>();
 
+    @OneToMany
+    @JoinTable(name = "project_tasks",
+            joinColumns = @JoinColumn(name = "projectid"),
+            inverseJoinColumns = @JoinColumn(name = "taskid"))
+    private List<TaskEntity> tasks = new ArrayList<>();
+
     public ProjectEntity(String nameSociety, UserData owner) {
         this.name = nameSociety;
         this.user = owner;
         this.startDate = LocalDate.now();
-        this.jsonData.put("description", Optional.ofNullable(null));
+        this.jsonData.put("description", 0);
+        this.jsonData.put("state", "active");
+    }
+
+    public void archived() {
+
     }
 }
