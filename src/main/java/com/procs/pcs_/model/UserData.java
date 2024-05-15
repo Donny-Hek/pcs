@@ -33,10 +33,16 @@ public class UserData {
 
 //    @Transient
     @OneToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "owner_project",
+            joinColumns = @JoinColumn(name = "managerid"),
+            inverseJoinColumns = @JoinColumn(name = "projectid"))
     private List<ProjectEntity> ownerOfProjects = new ArrayList<>();
 
 //    @Transient
     @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "project_workers",
+            joinColumns = @JoinColumn(name = "workerid"),
+            inverseJoinColumns = @JoinColumn(name = "projectid"))
     private List<ProjectEntity> workOnProjects = new ArrayList<>();
 
     public UserData(String name, String surname, UsersEntity userid) {

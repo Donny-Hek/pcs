@@ -56,27 +56,52 @@ public class ManagerController {
                                                @RequestBody UserRequest project) {
         String login = this.getUsernameFromToken(token);
 //        найти проект, вывести список программистов, не участсвующих пока в проекте
-        UserData manag = userDataRepository.findUserDataByEmail(login);
-        SocietyEntity society = manag.getSociety();
-        ProjectEntity currentProject = projectRepository.findByIdAndName
-                (project.getId(), project.getData()).orElse(null);
-        if (currentProject != null) {
-            List<UserData> freeWorkers = society.getUsersList();
-            freeWorkers.removeAll(currentProject.getWorkers());//удалить участников проекта
-            freeWorkers = userService.userListWithoutAdmins(freeWorkers);//очистить от админов
-
+        List<UserData> freeWorkers = projectService.getProjectWorkersByIdAndName(login, project.getId(), project.getData());
+        if (freeWorkers != null) {
             List<UserList> list = new ArrayList<>();
             for (UserData user : freeWorkers) {
                 list.add(new UserList(user.getId(), user.getName().charAt(1),
                         user.getSurname(), null));
             }
             return ResponseEntity.ok(list);
-        } else return ResponseEntity.ok(new MessageResponse("Ошибка вывода спика пользователей"));
+        } else
+            return ResponseEntity.ok(new MessageResponse("Ошибка вывода спика пользователей"));
     }
-//    @PostMapping("/addusertoproject")
-//    public ResponseEntity<?> addUserToProject(@RequestHeader("Authorization") String token) {
-//
-//    }
+
+    @PostMapping("/addusertoproj")
+    public ResponseEntity<?> addUserToProject(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok("OK");
+    }
+
+    @PostMapping("/deluserfromproj")
+    public ResponseEntity<?> deleteUserFromProject(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok("OK");
+    }
+
+    @PostMapping("/editproject/name")
+    public ResponseEntity<?> editProjectName(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok("OK");
+    }
+
+    @PostMapping("/addtask")
+    public ResponseEntity<?> addTaskToProject(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok("OK");
+    }
+
+    @PostMapping("/deltask")
+    public ResponseEntity<?> deleteTaskFromProject(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok("OK");
+    }
+
+    @PostMapping("/generatefile")
+    public ResponseEntity<?> generateFileAboutProject(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok("OK");
+    }
+
+    @PostMapping("/edittask/user")
+    public ResponseEntity<?> editWorkerOfTask(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok("OK");
+    }
 
     private String getUsernameFromToken(String token) {
         String jwt = token.substring(7, token.length()); //очищаем токен
